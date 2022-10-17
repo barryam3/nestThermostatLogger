@@ -35,10 +35,6 @@ function getSmartService() {
 
       // Below are Google-specific OAuth2 parameters.
 
-      // Sets the login hint, which will prevent the account chooser screen
-      // from being shown to users logged in with multiple accounts.
-      .setParam('login_hint', Session.getEffectiveUser().getEmail())
-
       // Requests offline access.
       .setParam('access_type', 'offline')
 
