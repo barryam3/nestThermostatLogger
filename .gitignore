@@ -3,3 +3,11 @@
 
 # Using default appsscript.json
 appsscript.json
+
+# NPM used for local development tools only.
+node_modules/
+package.json
+package-lock.json
+
+# ESLint used for local development only.
+.eslintrc.*

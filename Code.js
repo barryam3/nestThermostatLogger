@@ -2,37 +2,34 @@
  * Custom menu to use tool from Sheet UI
  */
 function onOpen() {
-  
   const ui = SpreadsheetApp.getUi();
-  
+
   ui.createMenu('Smart Device Tool')
-    .addItem('Smart Device Tool', 'showSidebar')
-    .addSeparator()
-    .addItem('Log thermostat data','logThermostatDataAllDevices')
-    .addItem('Set temperature','setTemperature')
-    .addToUi();
-  
+      .addItem('Smart Device Tool', 'showSidebar')
+      .addSeparator()
+      .addItem('Log thermostat data', 'logThermostatDataAllDevices')
+      .addItem('Set temperature', 'setTemperature')
+      .addToUi();
 }
 
 /**
  * list devices to get thermostat IDs
  */
 function listDevices() {
-
   // specify the endpoint
   const endpoint = '/enterprises/' + PROJECT_ID + '/devices';
 
   // blank array to hold device data
-  let deviceArray = [];
+  const deviceArray = [];
 
   // make request to smart api
   const data = makeRequest(endpoint);
   const deviceData = data.devices;
 
-  deviceData.forEach(device => {
+  deviceData.forEach((device) => {
     const name = device.name;
     const type = device.type;
-    deviceArray.push([name,type]);
+    deviceArray.push([name, type]);
   });
 
   // get the Sheet
@@ -40,46 +37,43 @@ function listDevices() {
   const sheet = ss.getActiveSheet();
 
   // output the data
-  sheet.getRange(2,1,deviceArray.length,2).setValues(deviceArray);
-
+  sheet.getRange(2, 1, deviceArray.length, 2).setValues(deviceArray);
 }
 
 /**
  * function to make request to google smart api
  */
 function makeRequest(endpoint) {
-
   // get the smart service
   const smartService = getSmartService();
-  
+
   // get the access token
   const access_token = smartService.getAccessToken();
 
   // setup the SMD API url
   const url = 'https://smartdevicemanagement.googleapis.com/v1';
-  //const endpoint = '/enterprises/' + PROJECT_ID + '/devices';
+  // const endpoint = '/enterprises/' + PROJECT_ID + '/devices';
 
   // setup the headers for the call
   const headers = {
     'Authorization': 'Bearer ' + access_token,
-    'Content-Type': 'application/json'
-  }
-  
+    'Content-Type': 'application/json',
+  };
+
   // set up params
   const params = {
     'headers': headers,
     'method': 'get',
-    'muteHttpExceptions': true
-  }
-  
+    'muteHttpExceptions': true,
+  };
+
   // try calling API
   try {
     const response = UrlFetchApp.fetch(url + endpoint, params);
     const responseBody = JSON.parse(response.getContentText());
-    
+
     return responseBody;
-  }
-  catch(e) {
+  } catch (e) {
     console.log('Error: ' + e);
   }
 }
@@ -88,13 +82,12 @@ function makeRequest(endpoint) {
  * function to make request to google smart api
  */
 function logThermostatDataAllDevices() {
-
   // get the latest weather data
   const weatherDataArray = retrieveWeather('KMRB');
-  
+
   // get the smart service
   const smartService = getSmartService();
-  
+
   // get the access token
   const access_token = smartService.getAccessToken();
 
@@ -105,23 +98,22 @@ function logThermostatDataAllDevices() {
   // setup the headers for the call
   const headers = {
     'Authorization': 'Bearer ' + access_token,
-    'Content-Type': 'application/json'
-  }
-  
+    'Content-Type': 'application/json',
+  };
+
   // setup the parameters for url fetch
   const params = {
     'headers': headers,
     'method': 'get',
-    'muteHttpExceptions': true
-  }
+    'muteHttpExceptions': true,
+  };
 
   // empty array to hold device data
-  let dataArray = [];
-  //let smdWeatherArray = [];
-  
+  const dataArray = [];
+  // let smdWeatherArray = [];
+
   // try calling API
   try {
-
     // url fetch to call api
     const response = UrlFetchApp.fetch(url + endpoint, params);
     const responseCode = response.getResponseCode();
@@ -133,10 +125,8 @@ function logThermostatDataAllDevices() {
     // create timestamp for api call
     const d = new Date();
 
-    devices.forEach(device => {
-      
+    devices.forEach((device) => {
       if (device['type'] === 'sdm.devices.types.THERMOSTAT') {
-
         // get relevant info
         const name = device['name'];
         const type = device['type'];
@@ -154,29 +144,27 @@ function logThermostatDataAllDevices() {
         const tempFarenheit = convertCtoF(tempCelcius);
 
         dataArray.push(
-          [
-            d,
-            name,
-            type,
-            humidity,
-            connectivity,
-            fan,
-            mode,
-            thermostatEcoMode,
-            thermostatEcoHeatCelcius,
-            thermostatEcoHeatFarenheit,
-            thermostatEcoCoolCelcius,
-            thermostatEcoCoolFarenheit,
-            thermostatHvac,
-            tempCelcius,
-            tempFarenheit
-          ].concat(weatherDataArray)
+            [
+              d,
+              name,
+              type,
+              humidity,
+              connectivity,
+              fan,
+              mode,
+              thermostatEcoMode,
+              thermostatEcoHeatCelcius,
+              thermostatEcoHeatFarenheit,
+              thermostatEcoCoolCelcius,
+              thermostatEcoCoolFarenheit,
+              thermostatHvac,
+              tempCelcius,
+              tempFarenheit,
+            ].concat(weatherDataArray),
         );
-        
-        //dataArray = dataArray;
 
+        // dataArray = dataArray;
       }
-
     });
 
     // get the Sheet
@@ -184,12 +172,10 @@ function logThermostatDataAllDevices() {
     const sheet = ss.getSheetByName('thermostatLogs');
 
     // output the data
-    sheet.getRange(sheet.getLastRow()+1,1,dataArray.length,dataArray[0].length).setValues(dataArray);
-  }
-  catch(e) {
+    sheet.getRange(sheet.getLastRow()+1, 1, dataArray.length, dataArray[0].length).setValues(dataArray);
+  } catch (e) {
     console.log('Error: ' + e);
   }
-
 }
 
 
@@ -199,10 +185,9 @@ function logThermostatDataAllDevices() {
  * https://forecast.weather.gov/stations.php
  */
 function retrieveWeather(stationCode) {
-
   const weatherArray = [];
 
-  //const stationCode = 'KMRB';
+  // const stationCode = 'KMRB';
   try {
     const weatherUrl = 'https://api.weather.gov/stations/' + stationCode + '/observations/latest';
     const response = UrlFetchApp.fetch(weatherUrl);
@@ -224,24 +209,22 @@ function retrieveWeather(stationCode) {
 
     // add to array
     weatherArray.push(
-      textDescription,
-      tempC,
-      tempF,
-      dewpointC,
-      dewpointF,
-      windDirection,
-      windSpeed,
-      barometricPressure,
-      seaLevelPressure,
-      visibility,
-      relativeHumidity,
-      windChill
+        textDescription,
+        tempC,
+        tempF,
+        dewpointC,
+        dewpointF,
+        windDirection,
+        windSpeed,
+        barometricPressure,
+        seaLevelPressure,
+        visibility,
+        relativeHumidity,
+        windChill,
     );
-  }
-  catch (e) {
+  } catch (e) {
     console.log('Error: ' + e);
   }
-  
-  return weatherArray;
 
+  return weatherArray;
 }

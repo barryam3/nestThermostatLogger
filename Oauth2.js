@@ -2,7 +2,7 @@
  * Logs the redirect URI to register.
  */
 function logRedirectUri() {
-  var service = getSmartService();
+  const service = getSmartService();
   Logger.log(service.getRedirectUri());
 }
 
@@ -33,7 +33,7 @@ function getSmartService() {
       // Set the scopes to request (space-separated for Google services).
       .setScope('https://www.googleapis.com/auth/sdm.service')
 
-      // Below are Google-specific OAuth2 parameters.
+  // Below are Google-specific OAuth2 parameters.
 
       // Requests offline access.
       .setParam('access_type', 'offline')
@@ -47,28 +47,25 @@ function getSmartService() {
  * Direct the user to the authorization URL
  */
 function showSidebar() {
-  
   const smartService = getSmartService();
-  
-  if (!smartService.hasAccess()) {
 
+  if (!smartService.hasAccess()) {
     // App does not have access yet
     const authorizationUrl = smartService.getAuthorizationUrl();
 
     const template = HtmlService.createTemplate(
         '<a href="<?= authorizationUrl ?>" target="_blank">Authorize</a>. ' +
         'Reopen the sidebar when the authorization is complete.');
-    
+
     template.authorizationUrl = authorizationUrl;
-    
+
     const page = template.evaluate();
 
     SpreadsheetApp.getUi().showSidebar(page);
-
   } else {
     // App has access
     console.log('App has access');
-    
+
     // make the API request
     makeRequest();
   }
@@ -78,11 +75,10 @@ function showSidebar() {
  * Handle the callback
  */
 function authCallback(request) {
-  
   const smartService = getSmartService();
-  
+
   const isAuthorized = smartService.handleCallback(request);
-  
+
   if (isAuthorized) {
     return HtmlService.createHtmlOutput('Success! You can close this tab.');
   } else {
