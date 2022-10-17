@@ -140,7 +140,6 @@ function logThermostatDataAllDevices() {
         // get relevant info
         const name = device['name'];
         const type = device['type'];
-        let location = '';
         const humidity = device['traits']['sdm.devices.traits.Humidity']['ambientHumidityPercent'];
         const connectivity = device['traits']['sdm.devices.traits.Connectivity']['status'];
         const fan = device['traits']['sdm.devices.traits.Fan']['timerMode'];
@@ -154,19 +153,11 @@ function logThermostatDataAllDevices() {
         const tempCelcius = device['traits']['sdm.devices.traits.Temperature']['ambientTemperatureCelsius'];
         const tempFarenheit = convertCtoF(tempCelcius);
 
-        if (name === 'enterprises/' + PROJECT_ID + '/devices/' + DOWNSTAIRS_THERMOSTAT) {
-          location = 'Downstairs';
-        }
-        else {
-          location = 'Upstairs';
-        }
-
         dataArray.push(
           [
             d,
             name,
             type,
-            location,
             humidity,
             connectivity,
             fan,
@@ -277,7 +268,7 @@ function setTemperature() {
   const url = 'https://smartdevicemanagement.googleapis.com/v1';
 
   // set the endpoint
-  const endpoint = '/enterprises/'  + PROJECT_ID + '/devices/' + DOWNSTAIRS_THERMOSTAT + ':executeCommand';
+  const endpoint = '/enterprises/'  + PROJECT_ID + '/devices/' + THERMOSTAT_ID + ':executeCommand';
 
   // setup the headers for the call
   const headers = {
