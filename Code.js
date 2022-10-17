@@ -48,15 +48,14 @@ function makeRequest(endpoint) {
   const smartService = getSmartService();
 
   // get the access token
-  const access_token = smartService.getAccessToken();
+  const accessToken = smartService.getAccessToken();
 
   // setup the SMD API url
   const url = 'https://smartdevicemanagement.googleapis.com/v1';
-  // const endpoint = '/enterprises/' + PROJECT_ID + '/devices';
 
   // setup the headers for the call
   const headers = {
-    'Authorization': 'Bearer ' + access_token,
+    'Authorization': 'Bearer ' + accessToken,
     'Content-Type': 'application/json',
   };
 
@@ -89,7 +88,7 @@ function logThermostatDataAllDevices() {
   const smartService = getSmartService();
 
   // get the access token
-  const access_token = smartService.getAccessToken();
+  const accessToken = smartService.getAccessToken();
 
   // setup the SMD API url
   const url = 'https://smartdevicemanagement.googleapis.com/v1';
@@ -97,7 +96,7 @@ function logThermostatDataAllDevices() {
 
   // setup the headers for the call
   const headers = {
-    'Authorization': 'Bearer ' + access_token,
+    'Authorization': 'Bearer ' + accessToken,
     'Content-Type': 'application/json',
   };
 
@@ -110,37 +109,45 @@ function logThermostatDataAllDevices() {
 
   // empty array to hold device data
   const dataArray = [];
-  // let smdWeatherArray = [];
 
   // try calling API
   try {
     // url fetch to call api
     const response = UrlFetchApp.fetch(url + endpoint, params);
-    const responseCode = response.getResponseCode();
     const responseBody = JSON.parse(response.getContentText());
 
     // get devices
-    const devices = responseBody['devices'];
+    const devices = responseBody.devices;
 
     // create timestamp for api call
     const d = new Date();
 
     devices.forEach((device) => {
-      if (device['type'] === 'sdm.devices.types.THERMOSTAT') {
+      if (device.type === 'sdm.devices.types.THERMOSTAT') {
         // get relevant info
-        const name = device['name'];
-        const type = device['type'];
-        const humidity = device['traits']['sdm.devices.traits.Humidity']['ambientHumidityPercent'];
-        const connectivity = device['traits']['sdm.devices.traits.Connectivity']['status'];
-        const fan = device['traits']['sdm.devices.traits.Fan']['timerMode'];
-        const mode = device['traits']['sdm.devices.traits.ThermostatMode']['mode'];
-        const thermostatEcoMode = device['traits']['sdm.devices.traits.ThermostatEco']['mode'];
-        const thermostatEcoHeatCelcius = device['traits']['sdm.devices.traits.ThermostatEco']['heatCelsius'];
-        const thermostatEcoHeatFarenheit = convertCtoF(thermostatEcoHeatCelcius);
-        const thermostatEcoCoolCelcius = device['traits']['sdm.devices.traits.ThermostatEco']['coolCelsius'];
-        const thermostatEcoCoolFarenheit = convertCtoF(thermostatEcoCoolCelcius);
-        const thermostatHvac = device['traits']['sdm.devices.traits.ThermostatHvac']['status'];
-        const tempCelcius = device['traits']['sdm.devices.traits.Temperature']['ambientTemperatureCelsius'];
+        const name = device.name;
+        const type = device.type;
+        const traits = device.traits;
+        const humidity = traits[
+            'sdm.devices.traits.Humidity'].ambientHumidityPercent;
+        const connectivity = traits[
+            'sdm.devices.traits.Connectivity'].status;
+        const fan = traits['sdm.devices.traits.Fan'].timerMode;
+        const mode = traits['sdm.devices.traits.ThermostatMode'].mode;
+        const thermostatEcoMode = traits[
+            'sdm.devices.traits.ThermostatEco'].mode;
+        const thermostatEcoHeatCelcius = traits[
+            'sdm.devices.traits.ThermostatEco'].heatCelsius;
+        const thermostatEcoHeatFarenheit = convertCtoF(
+            thermostatEcoHeatCelcius);
+        const thermostatEcoCoolCelcius = traits[
+            'sdm.devices.traits.ThermostatEco'].coolCelsius;
+        const thermostatEcoCoolFarenheit = convertCtoF(
+            thermostatEcoCoolCelcius);
+        const thermostatHvac = traits[
+            'sdm.devices.traits.ThermostatHvac'].status;
+        const tempCelcius = traits[
+            'sdm.devices.traits.Temperature'].ambientTemperatureCelsius;
         const tempFarenheit = convertCtoF(tempCelcius);
 
         dataArray.push(
@@ -162,8 +169,6 @@ function logThermostatDataAllDevices() {
               tempFarenheit,
             ].concat(weatherDataArray),
         );
-
-        // dataArray = dataArray;
       }
     });
 
@@ -172,7 +177,8 @@ function logThermostatDataAllDevices() {
     const sheet = ss.getSheetByName('thermostatLogs');
 
     // output the data
-    sheet.getRange(sheet.getLastRow()+1, 1, dataArray.length, dataArray[0].length).setValues(dataArray);
+    sheet.getRange(sheet.getLastRow() + 1, 1, dataArray.length,
+        dataArray[0].length).setValues(dataArray);
   } catch (e) {
     console.log('Error: ' + e);
   }
@@ -187,25 +193,25 @@ function logThermostatDataAllDevices() {
 function retrieveWeather(stationCode) {
   const weatherArray = [];
 
-  // const stationCode = 'KMRB';
   try {
-    const weatherUrl = 'https://api.weather.gov/stations/' + stationCode + '/observations/latest';
+    const weatherUrl = `https://api.weather.gov/stations/${stationCode
+    }/observations/latest`;
     const response = UrlFetchApp.fetch(weatherUrl);
     const weatherData = JSON.parse(response.getContentText());
 
     // parse the data
-    const textDescription = weatherData['properties']['textDescription'];
-    const tempC = weatherData['properties']['temperature']['value'];
+    const textDescription = weatherData.properties.textDescription;
+    const tempC = weatherData.properties.temperature.value;
     const tempF = convertCtoF(tempC);
-    const dewpointC = weatherData['properties']['dewpoint']['value'];
+    const dewpointC = weatherData.properties.dewpoint.value;
     const dewpointF = convertCtoF(dewpointC);
-    const windDirection = weatherData['properties']['windDirection']['value'];
-    const windSpeed = weatherData['properties']['windSpeed']['value'];
-    const barometricPressure = weatherData['properties']['barometricPressure']['value'];
-    const seaLevelPressure = weatherData['properties']['seaLevelPressure']['value'];
-    const visibility = weatherData['properties']['visibility']['value'];
-    const relativeHumidity = weatherData['properties']['relativeHumidity']['value'];
-    const windChill = weatherData['properties']['windChill']['value'];
+    const windDirection = weatherData.properties.windDirection.value;
+    const windSpeed = weatherData.properties.windSpeed.value;
+    const barometricPressure = weatherData.properties.barometricPressure.value;
+    const seaLevelPressure = weatherData.properties.seaLevelPressure.value;
+    const visibility = weatherData.properties.visibility.value;
+    const relativeHumidity = weatherData.properties.relativeHumidity.value;
+    const windChill = weatherData.properties.windChill.value;
 
     // add to array
     weatherArray.push(
