@@ -28,7 +28,6 @@ function listDevices() {
   // make request to smart api
   const data = makeRequest(endpoint);
   const deviceData = data.devices;
-  console.log(deviceData);
 
   deviceData.forEach(device => {
     const name = device.name;
@@ -55,7 +54,6 @@ function makeRequest(endpoint) {
   
   // get the access token
   const access_token = smartService.getAccessToken();
-  console.log(access_token);
 
   // setup the SMD API url
   const url = 'https://smartdevicemanagement.googleapis.com/v1';
@@ -93,7 +91,6 @@ function logThermostatDataAllDevices() {
 
   // get the latest weather data
   const weatherDataArray = retrieveWeather('KMRB');
-  console.log(weatherDataArray);
   
   // get the smart service
   const smartService = getSmartService();
@@ -129,14 +126,9 @@ function logThermostatDataAllDevices() {
     const response = UrlFetchApp.fetch(url + endpoint, params);
     const responseCode = response.getResponseCode();
     const responseBody = JSON.parse(response.getContentText());
-    
-    // log responses
-    console.log(responseCode);
-    //console.log(responseBody);
 
     // get devices
     const devices = responseBody['devices'];
-    //console.log(devices);
 
     // create timestamp for api call
     const d = new Date();
@@ -195,7 +187,6 @@ function logThermostatDataAllDevices() {
       }
 
     });
-    console.log(dataArray);
 
     // get the Sheet
     const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -227,7 +218,6 @@ function retrieveWeather(stationCode) {
     const weatherData = JSON.parse(response.getContentText());
 
     // parse the data
-    console.log(weatherData.properties);
     const textDescription = weatherData['properties']['textDescription'];
     const tempC = weatherData['properties']['temperature']['value'];
     const tempF = convertCtoF(tempC);
@@ -260,7 +250,6 @@ function retrieveWeather(stationCode) {
   catch (e) {
     console.log('Error: ' + e);
   }
-  console.log(weatherArray);
   
   return weatherArray;
 
@@ -277,16 +266,12 @@ function setTemperature() {
   const tempF = tempSheet.getRange('A1').getValue(); // Change this cell reference to match the temperature input cell of your Google Sheet 
   const tempC = convertFtoC(tempF);
 
-  console.log(tempC.toFixed(1));
-  console.log(typeof tempC)
-
   
   // get the smart service
   const smartService = getSmartService();
   
   // get the access token
   const access_token = smartService.getAccessToken();
-  console.log(access_token);
 
   // setup the SMD API url
   const url = 'https://smartdevicemanagement.googleapis.com/v1';
